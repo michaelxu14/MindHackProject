@@ -16,11 +16,13 @@ app.set("view engine", "pug");
 app.set("views", path.join(__dirname, "pages"))
 
 
-
 app.get("/", (req, res) =>{
     res.render("home", {currentPage: "home"});
 });
 
+app.get('/brain', (req, res) => {
+    res.render('brain', { currentPage: 'brain' })
+})
 
 app.listen(PORT, ()=>{
     console.log(`Server running at http://localhost:${PORT}`);

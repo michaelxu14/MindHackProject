@@ -1,0 +1,39 @@
+.brain-layout
+    .brain-sidebar
+        .sidebar-header
+            span.sidebar-label Controls
+        .sidebar-body
+            .sidebar-section
+                .section-title Region
+                .option-list
+                    button.option-btn.active Whole brain
+                    button.option-btn Frontal lobe
+                    button.option-btn Temporal lobe
+                    button.option-btn Parietal lobe
+                    button.option-btn Occipital lobe
+                    button.option-btn Cerebellum
+                    button.option-btn Brain stem
+
+            //this will be where we put the presets for different conditions (reels, cannabis, slot machine gambling)
+            
+            .sidebar-section
+                .section-title Presets
+                .option-list
+                    button.option-btn Doomscrolling
+                    button.option-btn Cannabis 
+                    button.option-btn Gambling
+                    button.option-btn Shopping 
+                    button.option-btn Exercise
+
+    .brain-main
+        .brain-canvas-wrap
+            #brain-canvas
+            .brain-placeholder
+                .placeholder-icon
+                svg(width="48" height="48" viewBox="0 0 48 48" fill="none")
+                    circle(cx="24" cy="24" r="20" stroke="#c4baff" stroke-width="1.5")
+                    path(d="M14 24 Q24 10 34 24 Q24 38 14 24" stroke="#c4baff" stroke-width="1.5" fill="none")
+                    path(d="M24 4 Q36 14 36 24 Q36 34 24 44" stroke="#c4baff" stroke-width="1" fill="none" stroke-dasharray="3 3")
+                p.placeholder-text Load a dataset to visualize the brain
+
+        
