@@ -2,23 +2,16 @@
   "regions": [
     {
       "id": 0,
-      "name": "ID5",
+      "name": "Pituitary gland",
       "color": "#e07a8e",
       "file": "region_0.obj",
       "vertices": 114,
       "faces": 224
     },
-    {
-      "id": 1,
-      "name": "ID15",
-      "color": "#7ab8e0",
-      "file": "region_1.obj",
-      "vertices": 10,
-      "faces": 8
-    },
+    
     {
       "id": 2,
-      "name": "ID21",
+      "name": "Right temporal lobe",
       "color": "#8ee07a",
       "file": "region_2.obj",
       "vertices": 1469,
@@ -34,7 +27,7 @@
     },
     {
       "id": 4,
-      "name": "ID33",
+      "name": "Left temporal lobe",
       "color": "#b07ae0",
       "file": "region_4.obj",
       "vertices": 1474,
@@ -42,7 +35,7 @@
     },
     {
       "id": 5,
-      "name": "ID41",
+      "name": "Right parietal lobe",
       "color": "#7ae0c8",
       "file": "region_5.obj",
       "vertices": 1040,
@@ -58,23 +51,16 @@
     },
     {
       "id": 7,
-      "name": "ID53",
+      "name": "Left parietal lobe",
       "color": "#7a9ee0",
       "file": "region_7.obj",
       "vertices": 1053,
       "faces": 1901
     },
-    {
-      "id": 8,
-      "name": "ID59",
-      "color": "#c8e07a",
-      "file": "region_8.obj",
-      "vertices": 7,
-      "faces": 3
-    },
+    
     {
       "id": 9,
-      "name": "ID85",
+      "name": "Brain stem and thalamus and hippocampus",
       "color": "#e07ac8",
       "file": "region_9.obj",
       "vertices": 1720,
@@ -82,7 +68,7 @@
     },
     {
       "id": 10,
-      "name": "ID93",
+      "name": "Right occipital lobe",
       "color": "#7ae0a0",
       "file": "region_10.obj",
       "vertices": 710,
@@ -90,7 +76,7 @@
     },
     {
       "id": 11,
-      "name": "ID99",
+      "name": "Left occipital lobe",
       "color": "#e0e07a",
       "file": "region_11.obj",
       "vertices": 712,
@@ -98,7 +84,7 @@
     },
     {
       "id": 12,
-      "name": "ID107",
+      "name": "Right frontal lobe",
       "color": "#7acce0",
       "file": "region_12.obj",
       "vertices": 1648,
@@ -106,7 +92,7 @@
     },
     {
       "id": 13,
-      "name": "ID113",
+      "name": "Left frontal lobe",
       "color": "#c87ae0",
       "file": "region_13.obj",
       "vertices": 1649,
@@ -114,7 +100,7 @@
     },
     {
       "id": 14,
-      "name": "ID133",
+      "name": "Corpus callosum",
       "color": "#e08a7a",
       "file": "region_14.obj",
       "vertices": 141,
@@ -122,7 +108,7 @@
     },
     {
       "id": 15,
-      "name": "ID141",
+      "name": "Cerebellum",
       "color": "#7ae0e0",
       "file": "region_15.obj",
       "vertices": 14400,
