@@ -60,11 +60,43 @@
     
     {
       "id": 9,
-      "name": "Brain stem and thalamus and hippocampus",
+      "name": "Brain Stem",
       "color": "#e07ac8",
       "file": "region_9.obj",
-      "vertices": 1720,
-      "faces": 3370
+      "vertices": 302,
+      "faces": 568
+    },
+    {
+      "id": 16,
+      "name": "Thalamus",
+      "color": "#7ab8e0",
+      "file": "region_16.obj",
+      "vertices": 392,
+      "faces": 710
+    },
+    {
+      "id": 17,
+      "name": "Hippocampus",
+      "color": "#ff9e7a",
+      "file": "region_17.obj",
+      "vertices": 407,
+      "faces": 702
+    },
+    {
+      "id": 18,
+      "name": "Basal Ganglia",
+      "color": "#7ae0b0",
+      "file": "region_18.obj",
+      "vertices": 387,
+      "faces": 714
+    },
+    {
+      "id": 19,
+      "name": "Midbrain",
+      "color": "#d97aff",
+      "file": "region_19.obj",
+      "vertices": 386,
+      "faces": 676
     },
     {
       "id": 10,

@@ -34,6 +34,7 @@ camera.position.set(0, 40, 180);
 const renderer = new THREE.WebGLRenderer({
   antialias: true,
   alpha: true, // transparent background for integration
+  stencil: true,
   powerPreference: 'high-performance',
 });
 renderer.setSize(width, height);
@@ -98,11 +99,87 @@ scene.add(gridHelper);
 const clipPlane = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0);
 let clippingEnabled = false;
 let clipAxis = 'x';
+const CLIP_DEFAULT_PERCENT = 50;
+const CLIP_MIN = -100;
+const CLIP_MAX = 100;
+const capLookAtTarget = new THREE.Vector3();
+const stencilGroups = [];
+const capMeshes = [];
+let clipRenderOrderCursor = 1;
 
 // Clip plane visual helper
 const clipPlaneHelper = new THREE.PlaneHelper(clipPlane, 200, 0x6366f1);
 clipPlaneHelper.visible = false;
 scene.add(clipPlaneHelper);
+
+const capGeometry = new THREE.PlaneGeometry(500, 500);
+function createPlaneStencilGroup(geometry, plane, renderOrder) {
+  const group = new THREE.Group();
+  const baseMat = new THREE.MeshBasicMaterial({
+    depthWrite: false,
+    depthTest: false,
+    colorWrite: false,
+    stencilWrite: true,
+    stencilFunc: THREE.AlwaysStencilFunc,
+  });
+
+  const backFaceMat = baseMat.clone();
+  backFaceMat.side = THREE.BackSide;
+  backFaceMat.clippingPlanes = [plane];
+  backFaceMat.stencilFail = THREE.IncrementWrapStencilOp;
+  backFaceMat.stencilZFail = THREE.IncrementWrapStencilOp;
+  backFaceMat.stencilZPass = THREE.IncrementWrapStencilOp;
+  const backFaceMesh = new THREE.Mesh(geometry, backFaceMat);
+  backFaceMesh.renderOrder = renderOrder;
+  group.add(backFaceMesh);
+
+  const frontFaceMat = baseMat.clone();
+  frontFaceMat.side = THREE.FrontSide;
+  frontFaceMat.clippingPlanes = [plane];
+  frontFaceMat.stencilFail = THREE.DecrementWrapStencilOp;
+  frontFaceMat.stencilZFail = THREE.DecrementWrapStencilOp;
+  frontFaceMat.stencilZPass = THREE.DecrementWrapStencilOp;
+  const frontFaceMesh = new THREE.Mesh(geometry, frontFaceMat);
+  frontFaceMesh.renderOrder = renderOrder;
+  group.add(frontFaceMesh);
+
+  return group;
+}
+
+function createClipCapMesh(color, renderOrder) {
+  const capMaterial = new THREE.MeshPhysicalMaterial({
+    color,
+    roughness: 0.72,
+    metalness: 0.05,
+    clearcoat: 0.1,
+    side: THREE.DoubleSide,
+    clippingPlanes: [],
+    stencilWrite: true,
+    stencilRef: 0,
+    stencilFunc: THREE.NotEqualStencilFunc,
+    stencilFail: THREE.ReplaceStencilOp,
+    stencilZFail: THREE.ReplaceStencilOp,
+    stencilZPass: THREE.ReplaceStencilOp,
+  });
+
+  const capMesh = new THREE.Mesh(capGeometry, capMaterial);
+  capMesh.visible = false;
+  capMesh.renderOrder = renderOrder;
+  capMesh.onAfterRender = (rendererInstance) => {
+    rendererInstance.clearStencil();
+  };
+  scene.add(capMesh);
+  capMeshes.push(capMesh);
+  return capMesh;
+}
+
+function updateClipCapTransform() {
+  capMeshes.forEach((capMesh) => {
+    clipPlane.coplanarPoint(capMesh.position);
+    capLookAtTarget.copy(capMesh.position).sub(clipPlane.normal);
+    capMesh.lookAt(capLookAtTarget);
+  });
+}
 
 function updateClipAxis(axis) {
   clipAxis = axis;
@@ -112,10 +189,16 @@ function updateClipAxis(axis) {
     axis === 'z' ? -1 : 0,
   );
   clipPlane.normal.copy(normal);
+  updateClipCapTransform();
 }
 
 function updateClipOffset(value) {
   clipPlane.constant = parseFloat(value);
+  updateClipCapTransform();
+}
+
+function percentToClipOffset(percent) {
+  return CLIP_MIN + ((CLIP_MAX - CLIP_MIN) * (percent / 100));
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -168,6 +251,8 @@ async function loadRegions() {
             flatShading: false,
             transparent: true,
             opacity: 1.0,
+            depthWrite: true,
+            depthTest: true,
             clippingPlanes: [clipPlane],
             clipShadows: true,
           });
@@ -175,24 +260,47 @@ async function loadRegions() {
           // Disable clipping initially
           material.clippingPlanes = clippingEnabled ? [clipPlane] : [];
 
+          const meshChildren = [];
           obj.traverse((child) => {
-            if (child.isMesh) {
-              child.material = material;
-              child.geometry.computeVertexNormals();
-
-              const geo = child.geometry;
-              if (geo.attributes.position) totalVerts += geo.attributes.position.count;
-              if (geo.index) totalFaces += geo.index.count / 3;
-            }
+            if (child.isMesh) meshChildren.push(child);
           });
-
           brainGroup.add(obj);
+
+          meshChildren.forEach((child) => {
+            child.material = material;
+            child.geometry.computeVertexNormals();
+
+            const stencilRenderOrder = clipRenderOrderCursor;
+            const capRenderOrder = clipRenderOrderCursor + 0.5;
+            const meshRenderOrder = clipRenderOrderCursor + 1;
+            clipRenderOrderCursor += 2;
+
+            child.renderOrder = meshRenderOrder;
+
+            const stencilGroup = createPlaneStencilGroup(child.geometry, clipPlane, stencilRenderOrder);
+            stencilGroup.position.copy(child.position);
+            stencilGroup.quaternion.copy(child.quaternion);
+            stencilGroup.scale.copy(child.scale);
+            stencilGroup.visible = clippingEnabled;
+            obj.add(stencilGroup);
+            stencilGroups.push(stencilGroup);
+
+            const capMesh = createClipCapMesh(color, capRenderOrder);
+            capMesh.visible = clippingEnabled;
+            capMesh.userData.regionColor = color.clone();
+            capMesh.userData.parentObject = obj;
+
+            const geo = child.geometry;
+            if (geo.attributes.position) totalVerts += geo.attributes.position.count;
+            if (geo.index) totalFaces += geo.index.count / 3;
+          });
 
           regionMeshes.push({
             object: obj,
             data: region,
             material: material,
             originalColor: color.clone(),
+            capMeshes: capMeshes.filter((capMesh) => capMesh.userData.parentObject === obj),
           });
 
           loaded++;
@@ -265,7 +373,7 @@ function buildRegionList(regions) {
     item.dataset.regionIndex = idx;
     item.innerHTML = `
       <div class="region-color" style="background: ${region.color};"></div>
-      <div class="region-name">${region.name}</div>
+      <div class="region-name">${region.name+" "+region.id}</div>
     `;
     item.addEventListener('click', () => {
       if (selectedRegions.has(idx)) {
@@ -291,6 +399,12 @@ function updateRegionHighlight() {
       rm.material.opacity = 0.15;
       rm.material.color.setHex(0x333333);
       rm.object.visible = true;
+    }
+
+    if (rm.capMeshes) {
+      rm.capMeshes.forEach((capMesh) => {
+        capMesh.material.color.copy(rm.material.color);
+      });
     }
   });
 
@@ -398,28 +512,24 @@ renderer.domElement.addEventListener('mousemove', onMouseMove);
 // ═══════════════════════════════════════════════════════════════════════════
 
 const clipToggle = document.getElementById('clip-toggle');
-const clipSlider = document.getElementById('clip-slider');
-const clipSliderRow = document.getElementById('clip-slider-row');
 const axisBtns = document.querySelectorAll('.axis-btn');
 
 if (clipToggle) {
   clipToggle.addEventListener('change', (e) => {
     clippingEnabled = e.target.checked;
-    if (clipSliderRow) {
-      clipSliderRow.style.opacity = clippingEnabled ? '1' : '0.3';
-      clipSliderRow.style.pointerEvents = clippingEnabled ? 'auto' : 'none';
+
+    // Reset clipping plane to midpoint whenever clipping is enabled.
+    if (clippingEnabled) {
+      updateClipOffset(percentToClipOffset(CLIP_DEFAULT_PERCENT));
     }
+
     clipPlaneHelper.visible = clippingEnabled;
+    capMeshes.forEach((capMesh) => { capMesh.visible = clippingEnabled; });
+    stencilGroups.forEach((group) => { group.visible = clippingEnabled; });
 
     regionMeshes.forEach((rm) => {
       rm.material.clippingPlanes = clippingEnabled ? [clipPlane] : [];
     });
-  });
-}
-
-if (clipSlider) {
-  clipSlider.addEventListener('input', (e) => {
-    updateClipOffset(e.target.value);
   });
 }
 
@@ -458,6 +568,7 @@ if (sidebarClose && sidebar && sidebarOpen) {
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
+  if (clippingEnabled) updateClipCapTransform();
   renderer.render(scene, camera);
 }
 animate();
