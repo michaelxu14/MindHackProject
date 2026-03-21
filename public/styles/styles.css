@@ -361,6 +361,259 @@ body {
     font-family: 'DM Sans', sans-serif;
 }
 
+/* ─── Integrated Test UI Styles ─── */
+
+/* ─── Loading ─── */
+#loading {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #0a0a0f;
+    z-index: 100;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 24px;
+    transition: opacity 0.6s ease;
+}
+
+#loading.hidden {
+    opacity: 0; pointer-events: none;
+}
+
+.loader-ring {
+    width: 48px; height: 48px; border-radius: 50%;
+    border: 3px solid rgba(99,102,241,0.15);
+    border-top-color: #818cf8;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+#loading p {
+    font-size: 14px;
+    color: rgba(200,200,220,0.6);
+    font-weight: 300;
+}
+
+.progress-text {
+    font-size: 11px;
+    color: rgba(200,200,220,0.3);
+    font-family: monospace;
+}
+
+/* ─── Region Tooltip ─── */
+#region-tooltip {
+    position: fixed;
+    z-index: 150;
+    pointer-events: none;
+    background: rgba(15, 15, 25, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(129, 140, 248, 0.25);
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #e0e0f0;
+    white-space: nowrap;
+    display: none;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    transition: opacity 0.15s ease;
+}
+
+#region-tooltip .color-dot {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+/* ─── Bottom controls ─── */
+.overlay-bottom {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 16px 28px;
+    background: linear-gradient(to top, rgba(10,10,15,0.7) 0%, transparent 100%);
+    z-index: 10;
+    pointer-events: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.controls-hint {
+    display: flex; gap: 16px;
+    font-size: 11px;
+    color: rgba(20,20,20,0.5);
+    letter-spacing: 0.3px;
+}
+
+.controls-hint .key {
+    display: inline-block;
+    padding: 2px 7px; border-radius: 4px;
+    background: rgba(0,0,0,0.08);
+    border: 1px solid rgba(0,0,0,0.1);
+    font-size: 10px; margin-right: 4px;
+    font-family: monospace;
+}
+
+.stats {
+    font-size: 11px;
+    color: rgba(20,20,20,0.45);
+    text-align: right; line-height: 1.6;
+}
+
+/* ─── Cross-Section Controls ─── */
+.toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.toggle-row label {
+    font-size: 12px;
+    color: rgba(20,20,40,0.7);
+}
+
+.toggle-switch {
+    position: relative;
+    width: 38px; height: 20px;
+    cursor: pointer;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.1);
+    border-radius: 20px;
+    transition: background 0.3s ease;
+}
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 16px; height: 16px;
+    left: 2px; top: 2px;
+    background: #ccc;
+    border-radius: 50%;
+    transition: transform 0.3s ease, background 0.3s ease;
+}
+.toggle-switch input:checked + .toggle-slider {
+    background: rgba(99, 102, 241, 0.5);
+}
+.toggle-switch input:checked + .toggle-slider::before {
+    transform: translateX(18px);
+    background: #818cf8;
+}
+
+.slider-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+}
+.slider-row label { font-size: 11px; min-width: 18px; }
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    flex: 1;
+    height: 4px;
+    background: rgba(0,0,0,0.1);
+    border-radius: 4px;
+    outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: #818cf8;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(129,140,248,0.4);
+}
+
+.axis-btns {
+    display: flex; gap: 4px; margin-top: 8px;
+}
+.axis-btn {
+    flex: 1; padding: 5px 0; font-size: 11px; font-weight: 500;
+    border: 1px solid rgba(0,0,0,0.1);
+    background: rgba(0,0,0,0.04);
+    color: rgba(20,20,40,0.5);
+    border-radius: 6px; cursor: pointer;
+    transition: all 0.2s; text-align: center;
+}
+.axis-btn.active {
+    background: rgba(99,102,241,0.1);
+    border-color: rgba(99,102,241,0.4);
+    color: #534AB7;
+}
+.axis-btn:hover:not(.active) {
+    background: rgba(0,0,0,0.08);
+}
+
+/* ─── Region list ─── */
+.region-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+    max-height: 250px;
+}
+.region-list::-webkit-scrollbar { width: 4px; }
+.region-list::-webkit-scrollbar-track { background: transparent; }
+.region-list::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.1);
+    border-radius: 4px;
+}
+
+.region-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+    user-select: none;
+    border-radius: 6px;
+}
+.region-item:hover {
+    background: rgba(0,0,0,0.05);
+}
+.region-item.active {
+    background: rgba(99,102,241,0.08);
+}
+.region-item.dimmed .region-name {
+    opacity: 0.3;
+}
+
+.region-color {
+    width: 12px; height: 12px;
+    border-radius: 4px; flex-shrink: 0;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+.region-name {
+    font-size: 12px; color: rgba(20,20,40,0.8);
+    line-height: 1.3; transition: opacity 0.2s;
+    font-family: 'DM Sans', sans-serif;
+}
+
+#sidebar-close {
+    background: none; border: none; font-size: 16px;
+    cursor: pointer; color: rgba(20,20,40,0.5);
+}
+#sidebar-open-btn {
+    position: fixed; top: 80px; left: 16px; z-index: 15;
+    background: #fff; border: 1px solid rgba(0,0,0,0.1);
+    width: 36px; height: 36px; border-radius: 8px;
+    display: none; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 18px;
+}
+.brain-sidebar.collapsed {
+    display: none !important;
+}
+#sidebar-open-btn.visible {
+    display: flex;
+}
+
 
 
 
