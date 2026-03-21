@@ -1,0 +1,26 @@
+{
+  "name": "mindhackproject",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michaelxu14/MindHackProject.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/michaelxu14/MindHackProject/issues"
+  },
+  "homepage": "https://github.com/michaelxu14/MindHackProject#readme",
+  "dependencies": {
+    "express": "^5.2.1",
+    "pug": "^3.0.4"
+  }
+}

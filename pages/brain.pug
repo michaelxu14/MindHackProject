@@ -14,4 +14,11 @@ html(lang="en")
         main
             include partials/brainSim
 
-        script(src="/js/brain-client.js")
+        script(type="importmap").
+            {
+                "imports": {
+                    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+                }
+            }
+        script(type="module" src="/js/brain-client.js")
