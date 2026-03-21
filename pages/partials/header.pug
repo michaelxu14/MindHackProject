@@ -1,8 +1,5 @@
 header.site-header
-    h1
-        | Brain Thingy
-
-    nav
+    a.nav-brand(href="/") Brain Thingy
+    nav.nav-links
         a(class=(currentPage === "home" ? "active" : ""), href="/") Home
-        a(class=(currentPage === "about" ? "active" : ""), href="/about") About
-        a(class=(currentPage === "contact" ? "active" : ""), href="/contact") Contact
+        a(class=(currentPage === "brain" ? "active" : ""), href="/brain") Brain Explorer
