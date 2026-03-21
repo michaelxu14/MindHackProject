@@ -234,7 +234,7 @@ async function loadRegions() {
   // 2. Load each region OBJ
   const loader = new OBJLoader();
 
-  const loadPromises = regions.map((region) => {
+  const loadPromises = regions.map((region, regionIndex) => {
     return new Promise((resolve, reject) => {
       loader.load(
         `/models/${region.file}`,
@@ -295,13 +295,13 @@ async function loadRegions() {
             if (geo.index) totalFaces += geo.index.count / 3;
           });
 
-          regionMeshes.push({
+          regionMeshes[regionIndex] = {
             object: obj,
             data: region,
             material: material,
             originalColor: color.clone(),
             capMeshes: capMeshes.filter((capMesh) => capMesh.userData.parentObject === obj),
-          });
+          };
 
           loaded++;
           if (loadStatus) loadStatus.textContent = `Loading ${loaded}/${total} regions…`;
@@ -391,6 +391,7 @@ function updateRegionHighlight() {
   const hasSelection = selectedRegions.size > 0;
 
   regionMeshes.forEach((rm, idx) => {
+    if (!rm) return;
     if (!hasSelection || selectedRegions.has(idx)) {
       rm.material.opacity = 1.0;
       rm.material.color.copy(rm.originalColor);
@@ -460,7 +461,9 @@ function onMouseMove(event) {
     let hitIdx = -1;
     for (let i = 0; i < regionMeshes.length; i++) {
       let found = false;
-      regionMeshes[i].object.traverse((child) => {
+      const candidate = regionMeshes[i];
+      if (!candidate) continue;
+      candidate.object.traverse((child) => {
         if (child === hitMesh) found = true;
       });
       if (found) { hitIdx = i; break; }

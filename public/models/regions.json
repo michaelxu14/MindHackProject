@@ -8,7 +8,7 @@
       "vertices": 114,
       "faces": 224
     },
-    
+
     {
       "id": 2,
       "name": "Right temporal lobe",
@@ -43,7 +43,7 @@
     },
     {
       "id": 6,
-      "name": "ID47",
+      "name": "Midbrain",
       "color": "#e0a07a",
       "file": "region_6.obj",
       "vertices": 7,
@@ -65,38 +65,6 @@
       "file": "region_9.obj",
       "vertices": 302,
       "faces": 568
-    },
-    {
-      "id": 16,
-      "name": "Thalamus",
-      "color": "#7ab8e0",
-      "file": "region_16.obj",
-      "vertices": 392,
-      "faces": 710
-    },
-    {
-      "id": 17,
-      "name": "Hippocampus",
-      "color": "#ff9e7a",
-      "file": "region_17.obj",
-      "vertices": 407,
-      "faces": 702
-    },
-    {
-      "id": 18,
-      "name": "Basal Ganglia",
-      "color": "#7ae0b0",
-      "file": "region_18.obj",
-      "vertices": 387,
-      "faces": 714
-    },
-    {
-      "id": 19,
-      "name": "Midbrain",
-      "color": "#d97aff",
-      "file": "region_19.obj",
-      "vertices": 386,
-      "faces": 676
     },
     {
       "id": 10,
@@ -145,8 +113,40 @@
       "file": "region_15.obj",
       "vertices": 14400,
       "faces": 28628
+    },
+    {
+      "id": 16,
+      "name": "Thalamus",
+      "color": "#7ab8e0",
+      "file": "region_16.obj",
+      "vertices": 392,
+      "faces": 710
+    },
+    {
+      "id": 17,
+      "name": "Hippocampus",
+      "color": "#ff9e7a",
+      "file": "region_17.obj",
+      "vertices": 407,
+      "faces": 702
+    },
+    {
+      "id": 18,
+      "name": "Basal Ganglia",
+      "color": "#7ae0b0",
+      "file": "region_18.obj",
+      "vertices": 387,
+      "faces": 714
+    },
+    {
+      "id": 19,
+      "name": "Pons",
+      "color": "#d97aff",
+      "file": "region_19.obj",
+      "vertices": 386,
+      "faces": 676
     }
   ],
-  "total_regions": 16,
+  "total_regions": 17,
   "source": "brain.dae"
 }
