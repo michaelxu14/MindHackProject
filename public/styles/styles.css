@@ -1,0 +1,82 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap');
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.4rem 2.5rem;
+  background: #0a0a0b;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
+  animation: slideDown 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.site-header h1 {
+  margin: 0;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.9rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.site-header h1::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #b3f97a;
+  box-shadow: 0 0 10px #b3f97a99;
+  flex-shrink: 0;
+  animation: pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 10px #b3f97a99; }
+  50%       { opacity: 0.5; box-shadow: 0 0 4px #b3f97a44; }
+}
+
+.site-header nav {
+  display: flex;
+  gap: 2.2rem;
+  align-items: center;
+}
+
+.site-header nav a {
+  text-decoration: none;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  position: relative;
+  padding-bottom: 3px;
+  transition: color 0.2s ease;
+}
+
+.site-header nav a::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 0;
+  height: 1px;
+  background: #b3f97a;
+  transition: width 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.site-header nav a:hover { color: rgba(255, 255, 255, 0.9); }
+.site-header nav a:hover::after { width: 100%; }
+
+.site-header nav a.active { color: #fff; }
+.site-header nav a.active::after {
+  width: 100%;
+  box-shadow: 0 0 6px #b3f97a66;
+}
