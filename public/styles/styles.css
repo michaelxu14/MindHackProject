@@ -984,6 +984,13 @@ body.fade-out {
     overflow: hidden;
 }
 
+.mission-subheading {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    color: #1a1814;
+    margin-bottom: 0.8rem;
+}
+
 
 /* ── Mission text ── */
 
