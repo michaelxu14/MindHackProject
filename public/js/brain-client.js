@@ -210,6 +210,184 @@ let hoveredRegion = null;
 let selectedRegions = new Set();
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
+let regionsReady = false;
+let pendingPresetAction = null;
+let pulseTargetRegions = [];
+const presetPulseColor = new THREE.Color(0xf59e0b);
+
+// Preset overlay visuals (e.g., arrows between regions)
+const presetOverlayGroup = new THREE.Group();
+scene.add(presetOverlayGroup);
+
+function disposeObject3D(object3D) {
+  object3D.traverse((child) => {
+    if (child.geometry) child.geometry.dispose();
+    if (child.material) {
+      if (Array.isArray(child.material)) {
+        child.material.forEach((mat) => mat.dispose());
+      } else {
+        child.material.dispose();
+      }
+    }
+  });
+}
+
+function clearPresetOverlays() {
+  while (presetOverlayGroup.children.length > 0) {
+    const child = presetOverlayGroup.children[0];
+    disposeObject3D(child);
+    presetOverlayGroup.remove(child);
+  }
+}
+
+function clearPresetPulse() {
+  pulseTargetRegions.forEach((regionMesh) => {
+    if (!regionMesh?.material) return;
+    regionMesh.material.emissive.setHex(0x000000);
+    regionMesh.material.emissiveIntensity = 1;
+  });
+  pulseTargetRegions = [];
+}
+
+function setPresetPulseTargets(regionNames) {
+  clearPresetPulse();
+  pulseTargetRegions = regionNames
+    .map((name) => findRegionByName(name))
+    .filter(Boolean);
+}
+
+function updatePresetPulse() {
+  if (pulseTargetRegions.length === 0) return;
+  const t = performance.now() * 0.001;
+  const wave = (Math.sin(t * 4.2) + 1) * 0.5;
+  const intensity = 0.1 + (wave * 0.35);
+
+  pulseTargetRegions.forEach((regionMesh) => {
+    if (!regionMesh?.material) return;
+    regionMesh.material.emissive.copy(presetPulseColor);
+    regionMesh.material.emissiveIntensity = intensity;
+  });
+}
+
+function findRegionByName(name) {
+  const target = name.toLowerCase();
+  return regionMeshes.find((rm) => rm?.data?.name?.toLowerCase() === target) || null;
+}
+
+function getRegionCenterWorld(regionMesh) {
+  const bounds = new THREE.Box3().setFromObject(regionMesh.object);
+  return bounds.getCenter(new THREE.Vector3());
+}
+
+function createCurvedArrow(startPoint, endPoint, brainCenter, brainSize, color, lateralOffset) {
+  const travelDir = endPoint.clone().sub(startPoint);
+  const distance = travelDir.length();
+  if (distance < 0.001) return;
+  travelDir.normalize();
+
+  const midPoint = startPoint.clone().add(endPoint).multiplyScalar(0.5);
+  const outwardDir = midPoint.clone().sub(brainCenter);
+  if (outwardDir.lengthSq() < 0.0001) {
+    outwardDir.set(0, 1, 0);
+  } else {
+    outwardDir.normalize();
+  }
+
+  const sideDir = new THREE.Vector3().crossVectors(travelDir, outwardDir);
+  if (sideDir.lengthSq() < 0.0001) {
+    sideDir.set(0, 0, 1);
+  } else {
+    sideDir.normalize();
+  }
+
+  const lift = Math.max(10, brainSize.length() * 0.045);
+  const startLifted = startPoint.clone().add(outwardDir.clone().multiplyScalar(lift * 0.72)).add(sideDir.clone().multiplyScalar(lateralOffset));
+  const endLifted = endPoint.clone().add(outwardDir.clone().multiplyScalar(lift * 0.72)).add(sideDir.clone().multiplyScalar(lateralOffset));
+
+  const controlA = startLifted.clone()
+    .add(outwardDir.clone().multiplyScalar(lift * 0.58))
+    .add(travelDir.clone().multiplyScalar(distance * 0.28));
+  const controlB = endLifted.clone()
+    .add(outwardDir.clone().multiplyScalar(lift * 0.58))
+    .add(travelDir.clone().multiplyScalar(-distance * 0.22));
+
+  const curve = new THREE.CatmullRomCurve3(
+    [startLifted, controlA, controlB, endLifted],
+    false,
+    'catmullrom',
+    0.5
+  );
+
+  const tubeGeometry = new THREE.TubeGeometry(curve, 64, 0.9, 10, false);
+  const tubeMaterial = new THREE.MeshBasicMaterial({
+    color,
+    transparent: true,
+    opacity: 0.96,
+    depthTest: false,
+    depthWrite: false,
+  });
+  const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
+  tube.renderOrder = 9999;
+  presetOverlayGroup.add(tube);
+
+  const coneHeight = Math.max(5, distance * 0.12);
+  const coneRadius = Math.max(1.8, coneHeight * 0.34);
+  const coneGeometry = new THREE.ConeGeometry(coneRadius, coneHeight, 20);
+  const coneMaterial = new THREE.MeshBasicMaterial({
+    color,
+    transparent: true,
+    opacity: 0.98,
+    depthTest: false,
+    depthWrite: false,
+  });
+  const cone = new THREE.Mesh(coneGeometry, coneMaterial);
+  const tipPoint = curve.getPoint(0.995);
+  const tangent = curve.getTangent(0.995).normalize();
+  cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), tangent);
+  cone.position.copy(tipPoint).add(tangent.clone().multiplyScalar(-coneHeight * 0.42));
+  cone.renderOrder = 10000;
+  presetOverlayGroup.add(cone);
+}
+
+function drawArrowBetweenRegions(startRegionName, endRegionName) {
+  clearPresetOverlays();
+
+  const startRegion = findRegionByName(startRegionName);
+  const endRegion = findRegionByName(endRegionName);
+  if (!startRegion || !endRegion) {
+    console.warn('Unable to draw arrow: missing region(s)', {
+      startRegionName,
+      endRegionName,
+    });
+    return;
+  }
+
+  const startPoint = getRegionCenterWorld(startRegion);
+  const endPoint = getRegionCenterWorld(endRegion);
+  const brainBounds = new THREE.Box3().setFromObject(brainGroup);
+  const brainCenter = brainBounds.getCenter(new THREE.Vector3());
+  const brainSize = brainBounds.getSize(new THREE.Vector3());
+
+  // Draw a pair of curved arrows hugging the outer brain contour.
+  createCurvedArrow(startPoint, endPoint, brainCenter, brainSize, 0xf59e0b, -2.2);
+  createCurvedArrow(startPoint, endPoint, brainCenter, brainSize, 0xfbbf24, 2.2);
+}
+
+function triggerPresetAction(presetName) {
+  const normalized = presetName.trim().toLowerCase();
+  clearPresetOverlays();
+  clearPresetPulse();
+
+  if (normalized !== 'shopping') return;
+
+  if (!regionsReady) {
+    pendingPresetAction = normalized;
+    return;
+  }
+
+  setPresetPulseTargets(['Right parietal lobe', 'Right frontal lobe']);
+  drawArrowBetweenRegions('Right parietal lobe', 'Right frontal lobe');
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Load Regions
@@ -327,6 +505,13 @@ async function loadRegions() {
 
   // 4. Build region list in sidebar
   buildRegionList(regions);
+
+  regionsReady = true;
+  if (pendingPresetAction) {
+    const action = pendingPresetAction;
+    pendingPresetAction = null;
+    triggerPresetAction(action);
+  }
 
   // 5. Hide loading
   if (loadingEl) {
@@ -551,6 +736,8 @@ axisBtns.forEach((btn) => {
 const sidebar = document.getElementById('sidebar');
 const sidebarClose = document.getElementById('sidebar-close');
 const sidebarOpen = document.getElementById('sidebar-open-btn');
+const presetButtons = document.querySelectorAll('.option-btn');
+const presetList = document.querySelector('.option-list');
 
 if (sidebarClose && sidebar && sidebarOpen) {
   sidebarClose.addEventListener('click', () => {
@@ -564,6 +751,20 @@ if (sidebarClose && sidebar && sidebarOpen) {
   });
 }
 
+presetButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    triggerPresetAction(button.textContent || '');
+  });
+});
+
+if (presetList) {
+  presetList.addEventListener('click', (event) => {
+    const targetButton = event.target.closest('.option-btn');
+    if (!targetButton) return;
+    triggerPresetAction(targetButton.textContent || '');
+  });
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Animation Loop
 // ═══════════════════════════════════════════════════════════════════════════
@@ -571,6 +772,7 @@ if (sidebarClose && sidebar && sidebarOpen) {
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
+  updatePresetPulse();
   if (clippingEnabled) updateClipCapTransform();
   renderer.render(scene, camera);
 }
