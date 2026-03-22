@@ -219,6 +219,18 @@ let regionsReady = false;
 let pendingPresetAction = null;
 let pulseTargetRegions = [];
 const presetPulseColor = new THREE.Color(0xf59e0b);
+const pulseTargetIndices = new Set();
+let staticGlowTargets = [];
+const staticGlowIndices = new Set();
+const CANNABIS_AFFECTED_REGIONS = [
+  'Thalamus',
+  'Basal Ganglia',
+  'Cerebellum',
+  'Brain Stem',
+  'Right parietal lobe',
+  'Left parietal lobe',
+  'Hippocampus',
+];
 const regionFunctionDescriptions = {
   'pituitary gland': 'Releases hormones that help control growth, stress response, reproduction, and other endocrine glands.',
   'right temporal lobe': 'Helps process sounds, language meaning, memory, and recognition of faces and objects.',
@@ -247,7 +259,7 @@ const presetImpactDescriptions = {
   cannabis: {
     title: 'Cannabis and the Brain',
     color: '#34d399',
-    description: 'Cannabis interacts with the endocannabinoid system, which influences mood, memory, and reward. Short-term effects can include altered attention and reaction speed, and frequent heavy use may affect hippocampal-dependent memory and executive function in some people.',
+    description: 'Affected regions pulse using the same visual style as the Shopping preset. Region mappings use the closest available anatomical regions in this 3D model (for example, neocortex is represented with cortical lobes).',
   },
   gambling: {
     title: 'Gambling and the Brain',
@@ -298,13 +310,16 @@ function clearPresetPulse() {
     regionMesh.material.emissiveIntensity = 1;
   });
   pulseTargetRegions = [];
+  pulseTargetIndices.clear();
 }
 
 function setPresetPulseTargets(regionNames) {
   clearPresetPulse();
-  pulseTargetRegions = regionNames
-    .map((name) => findRegionByName(name))
-    .filter(Boolean);
+  pulseTargetRegions = regionNames.map((name) => findRegionByName(name)).filter(Boolean);
+  pulseTargetRegions.forEach((regionMesh) => {
+    const idx = regionMeshes.indexOf(regionMesh);
+    if (idx >= 0) pulseTargetIndices.add(idx);
+  });
 }
 
 function updatePresetPulse() {
@@ -318,6 +333,69 @@ function updatePresetPulse() {
     regionMesh.material.emissive.copy(presetPulseColor);
     regionMesh.material.emissiveIntensity = intensity;
   });
+}
+
+function clearStaticPresetGlow() {
+  staticGlowTargets.forEach(({ regionMesh }) => {
+    if (!regionMesh?.material) return;
+    regionMesh.material.emissive.setHex(0x000000);
+    regionMesh.material.emissiveIntensity = 1;
+  });
+  staticGlowTargets = [];
+  staticGlowIndices.clear();
+}
+
+function setStaticPresetGlowTargets(targets) {
+  clearStaticPresetGlow();
+  const nextTargets = [];
+
+  targets.forEach(({
+    regionName,
+    color,
+    intensity,
+    pulseAmplitude = 0.14,
+    pulseSpeed = 3.2,
+    pulsePhase = 0,
+  }) => {
+    const regionMesh = findRegionByName(regionName);
+    if (!regionMesh) return;
+    const colorObj = color instanceof THREE.Color ? color.clone() : new THREE.Color(color);
+    nextTargets.push({
+      regionMesh,
+      color: colorObj,
+      intensity,
+      pulseAmplitude,
+      pulseSpeed,
+      pulsePhase,
+    });
+
+    const idx = regionMeshes.indexOf(regionMesh);
+    if (idx >= 0) staticGlowIndices.add(idx);
+  });
+
+  staticGlowTargets = nextTargets;
+}
+
+function updateStaticPresetGlow() {
+  const t = performance.now() * 0.001;
+  staticGlowTargets.forEach(({
+    regionMesh,
+    color,
+    intensity,
+    pulseAmplitude,
+    pulseSpeed,
+    pulsePhase,
+  }) => {
+    if (!regionMesh?.material) return;
+    const wave = (Math.sin((t * pulseSpeed) + pulsePhase) + 1) * 0.5;
+    const pulsedIntensity = intensity + (wave * pulseAmplitude);
+    regionMesh.material.emissive.copy(color);
+    regionMesh.material.emissiveIntensity = pulsedIntensity;
+  });
+}
+
+function isPresetHighlightedRegion(index) {
+  return pulseTargetIndices.has(index) || staticGlowIndices.has(index);
 }
 
 function findRegionByName(name) {
@@ -498,16 +576,22 @@ function triggerPresetAction(presetName, event) {
   showPresetPopup(normalized, event);
   clearPresetOverlays();
   clearPresetPulse();
-
-  if (normalized !== 'shopping') return;
+  clearStaticPresetGlow();
 
   if (!regionsReady) {
     pendingPresetAction = normalized;
     return;
   }
 
-  setPresetPulseTargets(['Right parietal lobe', 'Right frontal lobe']);
-  drawArrowBetweenRegions('Right parietal lobe', 'Right frontal lobe');
+  if (normalized === 'shopping') {
+    setPresetPulseTargets(['Right parietal lobe', 'Right frontal lobe']);
+    drawArrowBetweenRegions('Right parietal lobe', 'Right frontal lobe');
+    return;
+  }
+
+  if (normalized === 'cannabis') {
+    setPresetPulseTargets(CANNABIS_AFFECTED_REGIONS);
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -787,7 +871,7 @@ function onMouseMove(event) {
   if (hitIdx !== null) {
     if (hitIdx !== hoveredRegion) {
       // Un-hover previous
-      if (hoveredRegion !== null && !selectedRegions.has(hoveredRegion)) {
+      if (hoveredRegion !== null && !selectedRegions.has(hoveredRegion) && !isPresetHighlightedRegion(hoveredRegion)) {
         const prev = regionMeshes[hoveredRegion];
         if (prev) {
           prev.material.emissive.setHex(0x000000);
@@ -797,7 +881,9 @@ function onMouseMove(event) {
       // Hover new
       hoveredRegion = hitIdx;
       const rm = regionMeshes[hitIdx];
-      rm.material.emissive.set(0x222244);
+      if (!isPresetHighlightedRegion(hitIdx)) {
+        rm.material.emissive.set(0x222244);
+      }
 
       // Show tooltip
       if (tooltipEl) {
@@ -817,7 +903,7 @@ function onMouseMove(event) {
     // No hit
     if (hoveredRegion !== null) {
       const prev = regionMeshes[hoveredRegion];
-      if (prev) prev.material.emissive.set(0x000000);
+      if (prev && !isPresetHighlightedRegion(hoveredRegion)) prev.material.emissive.set(0x000000);
       hoveredRegion = null;
     }
     if (tooltipEl) tooltipEl.style.display = 'none';
@@ -924,6 +1010,7 @@ if (presetList) {
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
+  updateStaticPresetGlow();
   updatePresetPulse();
   if (clippingEnabled) updateClipCapTransform();
   renderer.render(scene, camera);
