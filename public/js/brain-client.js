@@ -223,20 +223,48 @@ const pulseTargetIndices = new Set();
 let staticGlowTargets = [];
 const staticGlowIndices = new Set();
 const CANNABIS_AFFECTED_REGIONS = [
-  'Thalamus',
-  'Basal Ganglia',
-  'Cerebellum',
-  'Brain Stem',
-  'Right parietal lobe',
-  'Left parietal lobe',
+  'Right frontal lobe',
+  'Left frontal lobe',
   'Hippocampus',
+  'Basal Ganglia',
+  'Midbrain',
 ];
 const DOOMSCROLLING_AFFECTED_REGIONS = [
   'Right frontal lobe',
   'Left frontal lobe',
   'Hippocampus',
   'Basal Ganglia',
+  'Midbrain',
 ];
+const PUZZLE_AFFECTED_REGIONS = [
+  'Right parietal lobe',
+  'Left parietal lobe',
+  'Right frontal lobe',
+  'Left frontal lobe',
+  'Hippocampus',
+];
+const EXERCISE_AFFECTED_REGIONS = [
+  'Right frontal lobe',
+  'Left frontal lobe',
+  'Hippocampus',
+  'Cerebellum',
+];
+const READING_AFFECTED_REGIONS = [
+  'Right temporal lobe',
+  'Left temporal lobe',
+  'Right parietal lobe',
+  'Left parietal lobe',
+  'Hippocampus',
+];
+const PROJECT_AFFECTED_REGIONS = [
+  'Right frontal lobe',
+  'Left frontal lobe',
+  'Basal Ganglia',
+  'Hippocampus',
+  'Right parietal lobe',
+  'Left parietal lobe',
+];
+let activePreset = null;
 const regionFunctionDescriptions = {
   'pituitary gland': 'Releases hormones that help control growth, stress response, reproduction, and other endocrine glands.',
   'right temporal lobe': 'Helps process sounds, language meaning, memory, and recognition of faces and objects.',
@@ -265,17 +293,17 @@ const presetImpactDescriptions = {
   cannabis: {
     title: 'Cannabis and the Brain',
     color: '#34d399',
-    description: 'Affected regions pulse using the same visual style as the Shopping preset. Region mappings use the closest available anatomical regions in this 3D model (for example, neocortex is represented with cortical lobes).',
+    description: 'Affected regions pulse using the same visual style as the other activity presets. Region mappings use the closest available anatomical regions in this 3D model (for example, neocortex is represented with cortical lobes).',
   },
   gambling: {
     title: 'Gambling and the Brain',
     color: '#f97316',
     description: 'Gambling strongly engages reward prediction pathways (including dopamine signaling), which can reinforce risk-taking and near-miss behavior. Repetition can bias decision-making systems toward short-term reward and weaken top-down impulse control.',
   },
-  shopping: {
-    title: 'Shopping and the Brain',
+  'solving a puzzle': {
+    title: 'Puzzle Solving and the Brain',
     color: '#f59e0b',
-    description: 'Reward and valuation circuits can become highly active during browsing and purchasing, especially with novelty, urgency cues, or social comparison. In high-arousal states, prefrontal regulation may be reduced, making impulsive spending more likely.',
+    description: 'Solving puzzles engages attention, working memory, and pattern-recognition networks. It especially recruits frontal-parietal systems for planning and problem-solving, with hippocampal support for memory integration.',
   },
   exercise: {
     title: 'Exercise and the Brain',
@@ -297,6 +325,8 @@ const presetImpactDescriptions = {
 // Preset overlay visuals (e.g., arrows between regions)
 const presetOverlayGroup = new THREE.Group();
 scene.add(presetOverlayGroup);
+const midbrainArrowGroup = new THREE.Group();
+scene.add(midbrainArrowGroup);
 
 function disposeObject3D(object3D) {
   object3D.traverse((child) => {
@@ -316,6 +346,14 @@ function clearPresetOverlays() {
     const child = presetOverlayGroup.children[0];
     disposeObject3D(child);
     presetOverlayGroup.remove(child);
+  }
+}
+
+function clearMidbrainSelectionArrows() {
+  while (midbrainArrowGroup.children.length > 0) {
+    const child = midbrainArrowGroup.children[0];
+    disposeObject3D(child);
+    midbrainArrowGroup.remove(child);
   }
 }
 
@@ -493,7 +531,7 @@ function getRegionCenterWorld(regionMesh) {
   return bounds.getCenter(new THREE.Vector3());
 }
 
-function createCurvedArrow(startPoint, endPoint, brainCenter, brainSize, color, lateralOffset) {
+function createCurvedArrow(startPoint, endPoint, brainCenter, brainSize, color, lateralOffset, targetGroup = presetOverlayGroup) {
   const travelDir = endPoint.clone().sub(startPoint);
   const distance = travelDir.length();
   if (distance < 0.001) return;
@@ -542,7 +580,7 @@ function createCurvedArrow(startPoint, endPoint, brainCenter, brainSize, color, 
   });
   const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
   tube.renderOrder = 9999;
-  presetOverlayGroup.add(tube);
+  targetGroup.add(tube);
 
   const coneHeight = Math.max(5, distance * 0.12);
   const coneRadius = Math.max(1.8, coneHeight * 0.34);
@@ -560,7 +598,7 @@ function createCurvedArrow(startPoint, endPoint, brainCenter, brainSize, color, 
   cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), tangent);
   cone.position.copy(tipPoint).add(tangent.clone().multiplyScalar(-coneHeight * 0.42));
   cone.renderOrder = 10000;
-  presetOverlayGroup.add(cone);
+  targetGroup.add(cone);
 }
 
 function drawArrowBetweenRegions(startRegionName, endRegionName) {
@@ -587,10 +625,81 @@ function drawArrowBetweenRegions(startRegionName, endRegionName) {
   createCurvedArrow(startPoint, endPoint, brainCenter, brainSize, 0xfbbf24, 2.2);
 }
 
+function getActivePresetAffectedRegions() {
+  if (activePreset === 'cannabis' || activePreset === 'gambling') return CANNABIS_AFFECTED_REGIONS;
+  if (activePreset === 'doomscrolling') return DOOMSCROLLING_AFFECTED_REGIONS;
+  return [];
+}
+
+function getPresetAffectedRegions(presetName) {
+  if (presetName === 'solving a puzzle') return PUZZLE_AFFECTED_REGIONS;
+  if (presetName === 'doomscrolling') return DOOMSCROLLING_AFFECTED_REGIONS;
+  if (presetName === 'cannabis') return CANNABIS_AFFECTED_REGIONS;
+  if (presetName === 'gambling') return CANNABIS_AFFECTED_REGIONS;
+  if (presetName === 'exercise') return EXERCISE_AFFECTED_REGIONS;
+  if (presetName === 'reading a book') return READING_AFFECTED_REGIONS;
+  if (presetName === 'finishing a project') return PROJECT_AFFECTED_REGIONS;
+  return [];
+}
+
+function applyPresetRegionSelection(regionNames) {
+  selectedRegions.clear();
+  regionNames.forEach((name) => {
+    const regionMesh = findRegionByName(name);
+    if (!regionMesh) return;
+    const idx = regionMeshes.indexOf(regionMesh);
+    if (idx >= 0) selectedRegions.add(idx);
+  });
+  updateRegionHighlight();
+}
+
+function updateMidbrainSelectionArrows() {
+  clearMidbrainSelectionArrows();
+
+  const shouldShowPathways = activePreset === 'cannabis'
+    || activePreset === 'doomscrolling'
+    || activePreset === 'gambling';
+  if (!shouldShowPathways) return;
+
+  const midbrain = findRegionByName('Midbrain');
+  if (!midbrain) return;
+
+  const affectedRegions = getActivePresetAffectedRegions()
+    .filter((name) => name.toLowerCase() !== 'midbrain');
+  if (affectedRegions.length === 0) return;
+
+  const sourcePoint = getRegionCenterWorld(midbrain);
+  const brainBounds = new THREE.Box3().setFromObject(brainGroup);
+  const brainCenter = brainBounds.getCenter(new THREE.Vector3());
+  const brainSize = brainBounds.getSize(new THREE.Vector3());
+  const spreadCenter = (affectedRegions.length - 1) / 2;
+  const frontalRegions = new Set(['right frontal lobe', 'left frontal lobe']);
+
+  affectedRegions.forEach((regionName, index) => {
+    const targetRegion = findRegionByName(regionName);
+    if (!targetRegion) return;
+    const targetPoint = getRegionCenterWorld(targetRegion);
+    const lateralBase = (index - spreadCenter) * 1.6;
+
+    // Midbrain -> affected region (yellow)
+    createCurvedArrow(sourcePoint, targetPoint, brainCenter, brainSize, 0xfacc15, lateralBase - 0.35, midbrainArrowGroup);
+    // Frontal lobes -> Midbrain (green)
+    if (frontalRegions.has(regionName.toLowerCase())) {
+      createCurvedArrow(targetPoint, sourcePoint, brainCenter, brainSize, 0x22c55e, lateralBase + 0.35, midbrainArrowGroup);
+    }
+  });
+}
+
 function triggerPresetAction(presetName, event) {
   const normalized = presetName.trim().toLowerCase();
-  showPresetPopup(normalized, event);
+  activePreset = normalized === 'none' ? null : normalized;
+  if (normalized === 'none') {
+    hideRegionPopup();
+  } else {
+    showPresetPopup(normalized, event);
+  }
   clearPresetOverlays();
+  clearMidbrainSelectionArrows();
   clearPresetPulse();
   clearStaticPresetGlow();
 
@@ -599,20 +708,44 @@ function triggerPresetAction(presetName, event) {
     return;
   }
 
-  if (normalized === 'shopping') {
-    setPresetPulseTargets(['Right parietal lobe', 'Right frontal lobe']);
-    drawArrowBetweenRegions('Right parietal lobe', 'Right frontal lobe');
+  const affectedRegions = getPresetAffectedRegions(normalized);
+  applyPresetRegionSelection(affectedRegions);
+
+  if (normalized === 'none') {
+    return;
+  }
+
+  if (normalized === 'solving a puzzle') {
+    setPresetPulseTargets(affectedRegions);
+    updateMidbrainSelectionArrows();
     return;
   }
 
   if (normalized === 'doomscrolling') {
-    setPresetPulseTargets(DOOMSCROLLING_AFFECTED_REGIONS);
+    setPresetPulseTargets(affectedRegions);
+    updateMidbrainSelectionArrows();
     return;
   }
 
   if (normalized === 'cannabis') {
-    setPresetPulseTargets(CANNABIS_AFFECTED_REGIONS);
+    setPresetPulseTargets(affectedRegions);
+    updateMidbrainSelectionArrows();
+    return;
   }
+
+  if (normalized === 'gambling') {
+    setPresetPulseTargets(affectedRegions);
+    updateMidbrainSelectionArrows();
+    return;
+  }
+
+  if (normalized === 'exercise' || normalized === 'reading a book' || normalized === 'finishing a project') {
+    setPresetPulseTargets(affectedRegions);
+    updateMidbrainSelectionArrows();
+    return;
+  }
+
+  updateMidbrainSelectionArrows();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -842,6 +975,8 @@ function updateRegionHighlight() {
       item.classList.remove('active', 'dimmed');
     }
   });
+
+  updateMidbrainSelectionArrows();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
