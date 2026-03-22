@@ -276,6 +276,16 @@ const presetImpactDescriptions = {
     color: '#22c55e',
     description: 'Regular exercise supports blood flow, neuroplasticity, and stress regulation. It is linked to stronger executive function, better mood, and improved hippocampal health through mechanisms like increased BDNF and more efficient network connectivity.',
   },
+  'reading a book': {
+    title: 'Reading and the Brain',
+    color: '#38bdf8',
+    description: 'Reading activates language, attention, and memory networks, especially in temporal and parietal association regions. Regular reading practice can strengthen comprehension, working memory, and cognitive flexibility.',
+  },
+  'finishing a project': {
+    title: 'Project Completion and the Brain',
+    color: '#a78bfa',
+    description: 'Completing a project engages planning and execution systems, then reward circuits during goal completion. This can reinforce motivation loops, improve task persistence, and strengthen habits around focused work.',
+  },
 };
 
 // Preset overlay visuals (e.g., arrows between regions)
