@@ -921,7 +921,7 @@ function buildRegionList(regions) {
     item.dataset.regionIndex = idx;
     item.innerHTML = `
       <div class="region-color" style="background: ${region.color};"></div>
-      <div class="region-name">${region.name+" "+region.id}</div>
+      <div class="region-name">${region.name}</div>
     `;
     item.addEventListener('click', () => {
       if (selectedRegions.has(idx)) {
