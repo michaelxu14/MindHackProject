@@ -17,14 +17,7 @@
       "vertices": 1469,
       "faces": 2829
     },
-    {
-      "id": 3,
-      "name": "ID27",
-      "color": "#e0c87a",
-      "file": "region_3.obj",
-      "vertices": 10,
-      "faces": 8
-    },
+
     {
       "id": 4,
       "name": "Left temporal lobe",
@@ -41,14 +34,7 @@
       "vertices": 1040,
       "faces": 1901
     },
-    {
-      "id": 6,
-      "name": "N/A",
-      "color": "#e0a07a",
-      "file": "region_6.obj",
-      "vertices": 7,
-      "faces": 3
-    },
+
     {
       "id": 7,
       "name": "Left parietal lobe",
@@ -147,6 +133,6 @@
       "faces": 676
     }
   ],
-  "total_regions": 17,
+  "total_regions": 16,
   "source": "brain.dae"
 }
