@@ -662,7 +662,7 @@ function getActivePresetAffectedRegions() {
 function getPresetAffectedRegions(presetName) {
   if (presetName === 'solving a puzzle') return PUZZLE_AFFECTED_REGIONS;
   if (presetName === 'doomscrolling') return DOOMSCROLLING_AFFECTED_REGIONS;
-  if (presetName === 'cannabis') return CANNABIS_AFFECTED_REGIONS;
+  if (presetName === 'cannabis') return [...CANNABIS_AFFECTED_REGIONS, 'Cerebellum'];
   if (presetName === 'gambling') return CANNABIS_AFFECTED_REGIONS;
   if (presetName === 'exercise') return EXERCISE_AFFECTED_REGIONS;
   if (presetName === 'reading a book') return READING_AFFECTED_REGIONS;
@@ -759,6 +759,15 @@ function triggerPresetAction(presetName, event) {
 
   if (normalized === 'cannabis') {
     setPresetPulseTargets(affectedRegions);
+    setStaticPresetGlowTargets([
+      {
+        regionName: 'Cerebellum',
+        color: '#ef4444',
+        intensity: 0.48,
+        pulseAmplitude: 0.18,
+        pulseSpeed: 2.2,
+      },
+    ]);
     updatePresetPathwayOverlays();
     updateMidbrainSelectionArrows();
     return;
