@@ -9,3 +9,4 @@ We have integrated a 3d model of the human brain and have created a visual repre
 More information can be found in the More Info tab
 When clicking on a specific behaviour or activity, more information is given along with a simulation of its effects on the human brain
 
+
