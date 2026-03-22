@@ -237,6 +237,8 @@ const DOOMSCROLLING_AFFECTED_REGIONS = [
   'Midbrain',
 ];
 const PUZZLE_AFFECTED_REGIONS = [
+  'Right occipital lobe',
+  'Left occipital lobe',
   'Right parietal lobe',
   'Left parietal lobe',
   'Right frontal lobe',
@@ -244,12 +246,16 @@ const PUZZLE_AFFECTED_REGIONS = [
   'Hippocampus',
 ];
 const EXERCISE_AFFECTED_REGIONS = [
+  'Pituitary gland',
+  'Basal Ganglia',
   'Right frontal lobe',
   'Left frontal lobe',
   'Hippocampus',
   'Cerebellum',
 ];
 const READING_AFFECTED_REGIONS = [
+  'Right occipital lobe',
+  'Left occipital lobe',
   'Right frontal lobe',
   'Left frontal lobe',
   'Right temporal lobe',
@@ -603,9 +609,7 @@ function createCurvedArrow(startPoint, endPoint, brainCenter, brainSize, color, 
   targetGroup.add(cone);
 }
 
-function drawArrowBetweenRegions(startRegionName, endRegionName) {
-  clearPresetOverlays();
-
+function drawArrowBetweenRegions(startRegionName, endRegionName, color = 0xfacc15, lateralOffset = 0) {
   const startRegion = findRegionByName(startRegionName);
   const endRegion = findRegionByName(endRegionName);
   if (!startRegion || !endRegion) {
@@ -622,9 +626,31 @@ function drawArrowBetweenRegions(startRegionName, endRegionName) {
   const brainCenter = brainBounds.getCenter(new THREE.Vector3());
   const brainSize = brainBounds.getSize(new THREE.Vector3());
 
-  // Draw a pair of curved arrows hugging the outer brain contour.
-  createCurvedArrow(startPoint, endPoint, brainCenter, brainSize, 0xf59e0b, -2.2);
-  createCurvedArrow(startPoint, endPoint, brainCenter, brainSize, 0xfbbf24, 2.2);
+  createCurvedArrow(startPoint, endPoint, brainCenter, brainSize, color, lateralOffset);
+}
+
+function updatePresetPathwayOverlays() {
+  clearPresetOverlays();
+  if (activePreset === 'exercise') {
+    // Exercise pathway overlays:
+    // Pituitary gland -> Basal Ganglia -> Frontal lobes
+    drawArrowBetweenRegions('Pituitary gland', 'Basal Ganglia', 0xfacc15, -0.45);
+    drawArrowBetweenRegions('Basal Ganglia', 'Left frontal lobe', 0xfacc15, -1.25);
+    drawArrowBetweenRegions('Basal Ganglia', 'Right frontal lobe', 0xfacc15, 1.25);
+    // Frontal lobes -> Pituitary gland (green return arrows)
+    drawArrowBetweenRegions('Left frontal lobe', 'Pituitary gland', 0x22c55e, -0.95);
+    drawArrowBetweenRegions('Right frontal lobe', 'Pituitary gland', 0x22c55e, 0.95);
+    return;
+  }
+
+  if (activePreset === 'solving a puzzle' || activePreset === 'reading a book' || activePreset === 'finishing a project') {
+    // Puzzle/Reading/Project pathway overlays:
+    // Occipital lobes -> Frontal lobes -> Hippocampus
+    drawArrowBetweenRegions('Left occipital lobe', 'Left frontal lobe', 0xfacc15, -1.1);
+    drawArrowBetweenRegions('Right occipital lobe', 'Right frontal lobe', 0xfacc15, 1.1);
+    drawArrowBetweenRegions('Left frontal lobe', 'Hippocampus', 0xfacc15, -0.85);
+    drawArrowBetweenRegions('Right frontal lobe', 'Hippocampus', 0xfacc15, 0.85);
+  }
 }
 
 function getActivePresetAffectedRegions() {
@@ -640,7 +666,7 @@ function getPresetAffectedRegions(presetName) {
   if (presetName === 'gambling') return CANNABIS_AFFECTED_REGIONS;
   if (presetName === 'exercise') return EXERCISE_AFFECTED_REGIONS;
   if (presetName === 'reading a book') return READING_AFFECTED_REGIONS;
-  if (presetName === 'finishing a project') return PROJECT_AFFECTED_REGIONS;
+  if (presetName === 'finishing a project') return PUZZLE_AFFECTED_REGIONS;
   return [];
 }
 
@@ -719,30 +745,35 @@ function triggerPresetAction(presetName, event) {
 
   if (normalized === 'solving a puzzle') {
     setPresetPulseTargets(affectedRegions);
+    updatePresetPathwayOverlays();
     updateMidbrainSelectionArrows();
     return;
   }
 
   if (normalized === 'doomscrolling') {
     setPresetPulseTargets(affectedRegions);
+    updatePresetPathwayOverlays();
     updateMidbrainSelectionArrows();
     return;
   }
 
   if (normalized === 'cannabis') {
     setPresetPulseTargets(affectedRegions);
+    updatePresetPathwayOverlays();
     updateMidbrainSelectionArrows();
     return;
   }
 
   if (normalized === 'gambling') {
     setPresetPulseTargets(affectedRegions);
+    updatePresetPathwayOverlays();
     updateMidbrainSelectionArrows();
     return;
   }
 
   if (normalized === 'exercise' || normalized === 'reading a book' || normalized === 'finishing a project') {
     setPresetPulseTargets(affectedRegions);
+    updatePresetPathwayOverlays();
     updateMidbrainSelectionArrows();
     return;
   }
