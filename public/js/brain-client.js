@@ -231,6 +231,12 @@ const CANNABIS_AFFECTED_REGIONS = [
   'Left parietal lobe',
   'Hippocampus',
 ];
+const DOOMSCROLLING_AFFECTED_REGIONS = [
+  'Right frontal lobe',
+  'Left frontal lobe',
+  'Hippocampus',
+  'Basal Ganglia',
+];
 const regionFunctionDescriptions = {
   'pituitary gland': 'Releases hormones that help control growth, stress response, reproduction, and other endocrine glands.',
   'right temporal lobe': 'Helps process sounds, language meaning, memory, and recognition of faces and objects.',
@@ -596,6 +602,11 @@ function triggerPresetAction(presetName, event) {
   if (normalized === 'shopping') {
     setPresetPulseTargets(['Right parietal lobe', 'Right frontal lobe']);
     drawArrowBetweenRegions('Right parietal lobe', 'Right frontal lobe');
+    return;
+  }
+
+  if (normalized === 'doomscrolling') {
+    setPresetPulseTargets(DOOMSCROLLING_AFFECTED_REGIONS);
     return;
   }
 
