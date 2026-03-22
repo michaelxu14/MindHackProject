@@ -290,17 +290,17 @@ const presetImpactDescriptions = {
   doomscrolling: {
     title: 'Doomscrolling and the Brain',
     color: '#60a5fa',
-    description: 'Constant negative-news exposure can keep stress circuits active, especially in the amygdala and salience network. Over time this may increase anxiety, reduce mental flexibility, and make it harder for prefrontal control systems to disengage from threat-focused attention.',
+    description: 'Constant and fluctuating dopamine exposure through short-term content can cause unexpected and unintentional brain development. This can cause unwarranted feedback loops that rely on short-term content to return to a homeostatic state.',
   },
   cannabis: {
     title: 'Cannabis and the Brain',
     color: '#34d399',
-    description: 'Affected regions pulse using the same visual style as the other activity presets. Region mappings use the closest available anatomical regions in this 3D model (for example, neocortex is represented with cortical lobes).',
+    description: 'Cannabis is made of Cannabidiol (CBD) and delta-9-tetrahydrocannabinol (THC). These are two chemicals that affect the brain. The brain has a system called the endocannabinoid system, where natural chemicals in the brain typically interact. In a substance use disorder, THC causes overstimulation of the endocannabinoid system, likely leading to a chemical imbalance that dysregulates the reward system.',
   },
   gambling: {
     title: 'Gambling and the Brain',
     color: '#f97316',
-    description: 'Gambling strongly engages reward prediction pathways (including dopamine signaling), which can reinforce risk-taking and near-miss behavior. Repetition can bias decision-making systems toward short-term reward and weaken top-down impulse control.',
+    description: 'Gambling strongly engages reward pathways (primarily dopamine signaling), which can reinforce risk-taking behavior. Repetition can bias decision-making systems toward short-term reward and weaken top-down impulse control.',
   },
   'solving a puzzle': {
     title: 'Puzzle Solving and the Brain',
@@ -310,7 +310,7 @@ const presetImpactDescriptions = {
   exercise: {
     title: 'Exercise and the Brain',
     color: '#22c55e',
-    description: 'Regular exercise supports blood flow, neuroplasticity, and stress regulation. It is linked to stronger executive function, better mood, and improved hippocampal health through mechanisms like increased BDNF and more efficient network connectivity.',
+    description: 'Regular exercise supports blood flow, neuroplasticity, and stress regulation. It is linked to stronger executive function, better mood, and improved hippocampal health through mechanisms like increased BDNF.',
   },
   'reading a book': {
     title: 'Reading and the Brain',
