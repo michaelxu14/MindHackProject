@@ -24,6 +24,15 @@ app.get('/brain', (req, res) => {
     res.render('brain', { currentPage: 'brain' })
 })
 
+app.get('/info', (req, res) => {
+    res.render('info', { currentPage: 'info' })
+})
+
+// Debug helper in case /info fails
+app.get('/info-debug', (req, res) => {
+    res.send('info route is wired up and server is running')
+})
+
 app.listen(PORT, ()=>{
     console.log(`Server running at http://localhost:${PORT}`);
 });
