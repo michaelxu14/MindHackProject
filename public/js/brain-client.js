@@ -295,7 +295,7 @@ const presetImpactDescriptions = {
   cannabis: {
     title: 'Cannabis and the Brain',
     color: '#34d399',
-    description: 'Cannabis is made of Cannabidiol (CBD) and delta-9-tetrahydrocannabinol (THC). These are two chemicals that affect the brain. The brain has a system called the endocannabinoid system, where natural chemicals in the brain typically interact. In a substance use disorder, THC causes overactivation of stimulus, likely leading to a chemical imbalance that dysregulates the reward system.',
+    description: 'Cannabis is made of Cannabidiol (CBD) and delta-9-tetrahydrocannabinol (THC). These are two chemicals that affect the brain. The brain has a system called the endocannabinoid system, where natural chemicals in the brain typically interact. In a substance use disorder, THC causes overstimulation of the endocannabinoid system, likely leading to a chemical imbalance that dysregulates the reward system.',
   },
   gambling: {
     title: 'Gambling and the Brain',
