@@ -1,6 +1,18 @@
+/* ─── this is very cluttered, fix later ─── */
+
+
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;1,300&family=DM+Sans:wght@300;400;500&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    animation: fadeIn 1s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
 
 .site-header {
     display: flex;
@@ -775,4 +787,465 @@ input[type="range"]::-webkit-slider-thumb {
 
 
 
+/* ── Carousel ── */
+.carousel-section {
+    width: 100%;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+}
 
+.carousel-track {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #f0ece4;
+}
+
+.carousel-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transform: scale(1.03);
+    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+}
+
+.carousel-img.active {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+}
+
+/* if using <img> tags swap the above bg colors for real images */
+.carousel-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.carousel-ui {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1.2rem;
+    padding: 0 0.2rem;
+}
+
+.carousel-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    font-family: 'Fraunces', serif;
+    font-size: 0.9rem;
+    color: #1a1814;
+    min-width: 52px;
+}
+
+.carousel-sep {
+    color: #c4c0bc;
+    font-size: 0.8rem;
+}
+
+.carousel-total {
+    color: #c4c0bc;
+    font-size: 0.78rem;
+}
+
+.carousel-dots {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.carousel-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 99px;
+    border: none;
+    background: #d4d0cc;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.carousel-dot.active {
+    width: 22px;
+    background: #7c6af7;
+}
+
+.carousel-arrows {
+    display: flex;
+    gap: 6px;
+}
+
+.arrow-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 99px;
+    border: 0.5px solid rgba(0,0,0,0.12);
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #1a1814;
+    transition: all 0.2s ease;
+}
+
+.arrow-btn:hover {
+    background: #EEEDFE;
+    border-color: #c4baff;
+    color: #534AB7;
+}
+
+.arrow-btn:active {
+    transform: scale(0.94);
+}
+
+
+/* ─── Fade ─── */
+
+body {
+    opacity: 1;
+    transition: opacity 0.35s ease;
+}
+
+body.fade-out {
+    opacity: 0;
+}
+
+
+
+/* ── About hero ── */
+.about {
+    background: #f7f5f2;
+    min-height: 100vh;
+}
+
+.about-hero {
+    padding: 6rem 2rem 4rem;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.about-eyebrow {
+    display: inline-block;
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #534AB7;
+    background: #EEEDFE;
+    padding: 5px 14px;
+    border-radius: 99px;
+    margin-bottom: 1.6rem;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.about-title {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.4rem, 5.5vw, 4rem);
+    font-weight: 300;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: #1a1814;
+}
+
+.about-accent {
+    font-style: italic;
+    color: #7c6af7;
+}
+
+/* ── Mission layout ── */
+.mission-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+}
+
+.mission-body {
+    position: sticky;
+    top: 5rem;
+}
+
+.mission-sources {
+    border: 0.5px solid rgba(0,0,0,0.08);
+    border-radius: 14px;
+    background: #fff;
+    overflow: hidden;
+}
+
+
+/* ── Mission text ── */
+
+.about-mission {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 4rem 6rem;
+}
+
+
+.mission-heading {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.2rem, 2.2vw, 1.55rem);
+    font-weight: 300;
+    line-height: 1.5;
+    color: #1a1814;
+    margin-bottom: 1.6rem;
+}
+
+.mission-heading em {
+    font-style: italic;
+    color: #7c6af7;
+}
+
+.mission-text {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    color: #8a8680;
+    line-height: 1.85;
+    margin-bottom: 1.2rem;
+    font-weight: 300;
+}
+
+/* ── Mission carousel ── */
+.mission-carousel {
+    padding-top: 0.4rem;
+}
+
+.mission-carousel .carousel-section {
+    padding: 0;
+}
+
+.mission-carousel .carousel-track {
+    border-radius: 16px;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    background: #e8e4f0;
+    position: relative;
+}
+
+.mission-carousel .carousel-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transform: scale(1.03);
+    transition: opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mission-carousel .carousel-img.active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .mission-content {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+    }
+
+    .mission-body {
+        position: static;
+    }
+}
+
+
+
+/* ── Sources panel ── */
+.mission-sources {
+    margin-top: 2.5rem;
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 18px;
+    background: linear-gradient(135deg, #fdfcfb 0%, #fff 100%);
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.5);
+    transition: box-shadow 0.3s ease;
+}
+
+.mission-sources:hover {
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.5);
+}
+
+.sources-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.4rem 1.8rem;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    background: linear-gradient(180deg, rgba(124,106,247,0.02) 0%, transparent 100%);
+}
+
+.sources-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: #7c6af7;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+}
+
+.sources-count {
+    font-size: 0.75rem;
+    color: #8a8680;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+}
+
+.sources-list {
+    max-height: none;
+    overflow-y: visible;
+    padding: 0.2rem 0;
+}
+
+.sources-list::-webkit-scrollbar { width: 3px; }
+.sources-list::-webkit-scrollbar-track { background: transparent; }
+.sources-list::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.08);
+    border-radius: 99px;
+}
+
+.source-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.2rem;
+    padding: 1.1rem 1.8rem;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.source-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, #7c6af7 0%, rgba(124,106,247,0) 100%);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.source-item:last-child {
+    border-bottom: none;
+}
+
+.source-item:hover {
+    background: linear-gradient(90deg, rgba(124,106,247,0.04) 0%, rgba(124,106,247,0) 100%);
+}
+
+.source-item:hover::before {
+    opacity: 1;
+}
+
+.source-item:hover .source-arrow {
+    color: #7c6af7;
+    transform: translate(2px, -1px);
+}
+
+.source-number {
+    font-family: 'Fraunces', serif;
+    font-size: 0.9rem;
+    color: #7c6af7;
+    min-width: 28px;
+    line-height: 1.4;
+    font-weight: 400;
+    opacity: 0.8;
+}
+
+.source-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+    padding-top: 2px;
+}
+
+.source-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    color: #1a1814;
+    font-weight: 500;
+    line-height: 1.4;
+    word-wrap: break-word;
+    overflow: visible;
+    white-space: normal;
+}
+
+.source-meta {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    color: #9b9590;
+    font-weight: 300;
+    letter-spacing: 0.3px;
+}
+
+.source-arrow {
+    color: #c4c0bc;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    margin-top: 3px;
+}
+
+/* ── AI Disclosure ── */
+.ai-disclosure {
+    margin-top: 2.5rem;
+    padding: 1.2rem 1.8rem;
+    background: linear-gradient(135deg, rgba(124,106,247,0.04) 0%, rgba(124,106,247,0.02) 100%);
+    border: 1px solid rgba(124,106,247,0.1);
+    border-radius: 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.disclosure-icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #7c6af7;
+    opacity: 0.7;
+}
+
+.disclosure-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.disclosure-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #7c6af7;
+}
+
+.disclosure-description {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    color: #8a8680;
+    line-height: 1.5;
+    font-weight: 300;
+}

@@ -1,19 +1,80 @@
-section.about 
+section.about
 
-    br
-    br
     .about-hero
         .about-hero-inner
+            span.about-eyebrow Our mission
             h1.about-title
                 | Built to make the invisible
                 em.about-accent  visible.
-    .about-mission
 
-        .mission-body
-            h2.mission-heading
-                | Doomscrolling, binge-watching, compulsive checking — these aren't just bad habits.
-                | They are patterns encoded in neural circuitry.
-            p.mission-text
-                | Most people understand addiction in abstract terms. They know it "affects the brain," but that abstraction makes it easy to dismiss — in others and in ourselves. This tool exists to close that gap: to turn data and research into something you can rotate, cross-section, and explore.
-            p.mission-text
-                | Whether you're a clinician, a student, or someone simply trying to understand your own habits, this tool gives you a shared visualization for conversations that matter.
+    .about-mission
+        .mission-content
+
+            .mission-body
+                h2.mission-heading
+                    | Doomscrolling, binge-watching, compulsive checking — these aren't just bad habits.
+                    em  They are patterns encoded in neural circuitry.
+
+                p.mission-text
+                    | Most people understand addiction in abstract terms. They know it "affects the brain," but that abstraction makes it easy to dismiss — in others and in ourselves. This tool exists to close that gap: to turn data and research into something you can rotate, cross-section, and explore.
+
+                p.mission-text
+                    | Whether you're a clinician, a student, or someone simply trying to understand your own habits, this tool gives you a shared visualization for conversations that matter.
+
+            .mission-carousel
+                .carousel-section
+                    .carousel-track
+                        img.carousel-img.active(src="/images/reels stock.jpg")
+                        img.carousel-img(src="/images/reels stock 2.jpg")
+                        img.carousel-img(src="/images/reels stock 3.jpg")
+
+                    .carousel-ui
+                        .carousel-meta
+                            span.carousel-index 01
+                            span.carousel-sep /
+                            span.carousel-total 03
+                        .carousel-dots
+                            each i in [0,1,2]
+                                button.carousel-dot(data-index=i, class=(i === 0 ? 'active' : ''))
+                        .carousel-arrows
+                            button.arrow-btn#prevBtn
+                                svg(width="16" height="16" viewBox="0 0 16 16" fill="none")
+                                    path(d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round")
+                            button.arrow-btn#nextBtn
+                                svg(width="16" height="16" viewBox="0 0 16 16" fill="none")
+                                    path(d="M6 3L11 8L6 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round")
+
+    script.
+        let currentIndex = 0;
+        const images = document.querySelectorAll('.carousel-img');
+        const dots = document.querySelectorAll('.carousel-dot');
+        const indexEl = document.querySelector('.carousel-index');
+        const total = images.length;
+
+        function showImage(index) {
+            images.forEach((img, i) => img.classList.toggle('active', i === index));
+            dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
+            indexEl.textContent = String(index + 1).padStart(2, '0');
+        }
+
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            currentIndex = (currentIndex - 1 + total) % total;
+            showImage(currentIndex);
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            currentIndex = (currentIndex + 1) % total;
+            showImage(currentIndex);
+        });
+
+        document.querySelectorAll('.carousel-dot').forEach((dot, i) => {
+            dot.addEventListener('click', () => {
+                currentIndex = i;
+                showImage(currentIndex);
+            });
+        });
+
+        setInterval(() => {
+            currentIndex = (currentIndex + 1) % total;
+            showImage(currentIndex);
+        }, 5000);
