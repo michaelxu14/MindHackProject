@@ -11,7 +11,12 @@ const loadingEl = document.getElementById('loading');
 const loadStatus = document.getElementById('load-status');
 const statsEl = document.getElementById('stats');
 const tooltipEl = document.getElementById('region-tooltip');
+const regionPopupEl = document.getElementById('region-popup');
 const regionListEl = document.getElementById('region-list');
+const popupCloseBtn = regionPopupEl?.querySelector('.popup-close');
+const popupColorDotEl = regionPopupEl?.querySelector('.color-dot');
+const popupTitleEl = regionPopupEl?.querySelector('.popup-title');
+const popupDescriptionEl = regionPopupEl?.querySelector('.popup-description');
 
 // ─── Scene ─────────────────────────────────────────────────────────────────
 const scene = new THREE.Scene();
@@ -214,6 +219,52 @@ let regionsReady = false;
 let pendingPresetAction = null;
 let pulseTargetRegions = [];
 const presetPulseColor = new THREE.Color(0xf59e0b);
+const regionFunctionDescriptions = {
+  'pituitary gland': 'Releases hormones that help control growth, stress response, reproduction, and other endocrine glands.',
+  'right temporal lobe': 'Helps process sounds, language meaning, memory, and recognition of faces and objects.',
+  'left temporal lobe': 'Supports language understanding, verbal memory, and processing of speech-related information.',
+  'right parietal lobe': 'Integrates touch and spatial information, supporting attention and awareness of body position.',
+  'left parietal lobe': 'Supports spatial reasoning, sensory integration, and aspects of reading, writing, and math.',
+  midbrain: 'Relays visual and auditory signals and helps regulate alertness, eye movement, and motor responses.',
+  'brain stem': 'Controls automatic life functions such as breathing, heart rate, blood pressure, and sleep-wake cycles.',
+  'right occipital lobe': 'Processes visual input, including shape, color, and motion from what you see.',
+  'left occipital lobe': 'Processes visual information and helps interpret visual patterns and symbols.',
+  'right frontal lobe': 'Supports planning, impulse control, decision-making, and voluntary movement.',
+  'left frontal lobe': 'Supports planning, speech production, working memory, and goal-directed behavior.',
+  'corpus callosum': 'Connects the left and right hemispheres so they can share information quickly.',
+  cerebellum: 'Coordinates balance, precision, posture, and fine-tuning of movement.',
+  thalamus: 'Acts as a relay hub that routes sensory and motor signals to the cerebral cortex.',
+  hippocampus: 'Critical for forming new memories and supporting learning and spatial navigation.',
+  'basal ganglia': 'Helps initiate and regulate movement, habits, reward processing, and action selection.',
+  'left medial temporal lobe': 'Supports memory formation and emotional processing, especially for verbal information.',
+};
+const presetImpactDescriptions = {
+  doomscrolling: {
+    title: 'Doomscrolling and the Brain',
+    color: '#60a5fa',
+    description: 'Constant negative-news exposure can keep stress circuits active, especially in the amygdala and salience network. Over time this may increase anxiety, reduce mental flexibility, and make it harder for prefrontal control systems to disengage from threat-focused attention.',
+  },
+  cannabis: {
+    title: 'Cannabis and the Brain',
+    color: '#34d399',
+    description: 'Cannabis interacts with the endocannabinoid system, which influences mood, memory, and reward. Short-term effects can include altered attention and reaction speed, and frequent heavy use may affect hippocampal-dependent memory and executive function in some people.',
+  },
+  gambling: {
+    title: 'Gambling and the Brain',
+    color: '#f97316',
+    description: 'Gambling strongly engages reward prediction pathways (including dopamine signaling), which can reinforce risk-taking and near-miss behavior. Repetition can bias decision-making systems toward short-term reward and weaken top-down impulse control.',
+  },
+  shopping: {
+    title: 'Shopping and the Brain',
+    color: '#f59e0b',
+    description: 'Reward and valuation circuits can become highly active during browsing and purchasing, especially with novelty, urgency cues, or social comparison. In high-arousal states, prefrontal regulation may be reduced, making impulsive spending more likely.',
+  },
+  exercise: {
+    title: 'Exercise and the Brain',
+    color: '#22c55e',
+    description: 'Regular exercise supports blood flow, neuroplasticity, and stress regulation. It is linked to stronger executive function, better mood, and improved hippocampal health through mechanisms like increased BDNF and more efficient network connectivity.',
+  },
+};
 
 // Preset overlay visuals (e.g., arrows between regions)
 const presetOverlayGroup = new THREE.Group();
@@ -272,6 +323,75 @@ function updatePresetPulse() {
 function findRegionByName(name) {
   const target = name.toLowerCase();
   return regionMeshes.find((rm) => rm?.data?.name?.toLowerCase() === target) || null;
+}
+
+function getRegionFunctionDescription(regionName) {
+  return regionFunctionDescriptions[regionName.toLowerCase()]
+    || 'This region contributes to sensory processing, communication between networks, and coordinated brain function.';
+}
+
+function hideRegionPopup() {
+  if (regionPopupEl) {
+    regionPopupEl.style.display = 'none';
+    regionPopupEl.classList.remove('preset-popup');
+  }
+}
+
+function showRegionPopup(regionData, event) {
+  if (!regionPopupEl || !popupTitleEl || !popupDescriptionEl || !popupColorDotEl) return;
+
+  regionPopupEl.classList.remove('preset-popup');
+  popupColorDotEl.style.background = regionData.color;
+  popupTitleEl.textContent = regionData.name;
+  popupDescriptionEl.textContent = getRegionFunctionDescription(regionData.name);
+  regionPopupEl.style.display = 'block';
+  positionPopupNearEvent(event);
+}
+
+function positionPopupNearEvent(event) {
+  if (!regionPopupEl) return;
+
+  const popupRect = regionPopupEl.getBoundingClientRect();
+  const offsetX = 16;
+  const offsetY = 16;
+  const minMargin = 8;
+  const maxLeft = window.innerWidth - popupRect.width - minMargin;
+  const maxTop = window.innerHeight - popupRect.height - minMargin;
+
+  const fallbackX = window.innerWidth * 0.5;
+  const fallbackY = window.innerHeight * 0.5;
+  const anchorX = event?.clientX ?? fallbackX;
+  const anchorY = event?.clientY ?? fallbackY;
+  const desiredLeft = anchorX + offsetX;
+  const desiredTop = anchorY + offsetY;
+  const left = Math.max(minMargin, Math.min(desiredLeft, maxLeft));
+  const top = Math.max(minMargin, Math.min(desiredTop, maxTop));
+
+  regionPopupEl.style.left = `${left}px`;
+  regionPopupEl.style.top = `${top}px`;
+}
+
+function centerPopupOnScreen() {
+  if (!regionPopupEl) return;
+  regionPopupEl.style.left = '50%';
+  regionPopupEl.style.top = '50%';
+}
+
+function showPresetPopup(presetName, event) {
+  if (!regionPopupEl || !popupTitleEl || !popupDescriptionEl || !popupColorDotEl) return;
+  const normalized = presetName.trim().toLowerCase();
+  const details = presetImpactDescriptions[normalized];
+  if (!details) {
+    hideRegionPopup();
+    return;
+  }
+
+  regionPopupEl.classList.add('preset-popup');
+  popupColorDotEl.style.background = details.color;
+  popupTitleEl.textContent = details.title;
+  popupDescriptionEl.textContent = details.description;
+  regionPopupEl.style.display = 'block';
+  centerPopupOnScreen();
 }
 
 function getRegionCenterWorld(regionMesh) {
@@ -373,8 +493,9 @@ function drawArrowBetweenRegions(startRegionName, endRegionName) {
   createCurvedArrow(startPoint, endPoint, brainCenter, brainSize, 0xfbbf24, 2.2);
 }
 
-function triggerPresetAction(presetName) {
+function triggerPresetAction(presetName, event) {
   const normalized = presetName.trim().toLowerCase();
+  showPresetPopup(normalized, event);
   clearPresetOverlays();
   clearPresetPulse();
 
@@ -447,6 +568,8 @@ async function loadRegions() {
           meshChildren.forEach((child) => {
             child.material = material;
             child.geometry.computeVertexNormals();
+            child.userData.interactiveRegionMesh = true;
+            child.userData.regionIndex = regionIndex;
 
             const stencilRenderOrder = clipRenderOrderCursor;
             const capRenderOrder = clipRenderOrderCursor + 0.5;
@@ -620,9 +743,9 @@ function updateRegionHighlight() {
 // Raycasting (Hover + Click)
 // ═══════════════════════════════════════════════════════════════════════════
 
-function onMouseMove(event) {
+function getRegionHitIndex(event) {
   const rect = renderer.domElement.getBoundingClientRect();
-  
+
   // Calculate mouse position relative to the canvas
   mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
   mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
@@ -632,29 +755,37 @@ function onMouseMove(event) {
   // Collect all meshes
   const meshes = [];
   regionMeshes.forEach((rm) => {
+    if (!rm?.object) return;
     rm.object.traverse((child) => {
-      if (child.isMesh) meshes.push(child);
+      if (child.isMesh && child.userData?.interactiveRegionMesh) meshes.push(child);
     });
   });
 
   const intersects = raycaster.intersectObjects(meshes, false);
+  if (intersects.length === 0) return null;
+  const hitMesh = intersects[0].object;
+  const directIdx = hitMesh.userData.regionIndex;
+  if (Number.isInteger(directIdx)) return directIdx;
 
-  if (intersects.length > 0) {
-    const hitMesh = intersects[0].object;
+  // Fallback in case the region index was not attached.
+  for (let i = 0; i < regionMeshes.length; i++) {
+    const candidate = regionMeshes[i];
+    if (!candidate?.object) continue;
+    let found = false;
+    candidate.object.traverse((child) => {
+      if (child === hitMesh) found = true;
+    });
+    if (found) return i;
+  }
 
-    // Find which region this belongs to
-    let hitIdx = -1;
-    for (let i = 0; i < regionMeshes.length; i++) {
-      let found = false;
-      const candidate = regionMeshes[i];
-      if (!candidate) continue;
-      candidate.object.traverse((child) => {
-        if (child === hitMesh) found = true;
-      });
-      if (found) { hitIdx = i; break; }
-    }
+  return null;
+}
 
-    if (hitIdx >= 0 && hitIdx !== hoveredRegion) {
+function onMouseMove(event) {
+  const hitIdx = getRegionHitIndex(event);
+
+  if (hitIdx !== null) {
+    if (hitIdx !== hoveredRegion) {
       // Un-hover previous
       if (hoveredRegion !== null && !selectedRegions.has(hoveredRegion)) {
         const prev = regionMeshes[hoveredRegion];
@@ -693,7 +824,28 @@ function onMouseMove(event) {
   }
 }
 
+function onCanvasClick(event) {
+  const hitIdx = getRegionHitIndex(event);
+  if (hitIdx === null) {
+    hideRegionPopup();
+    return;
+  }
+
+  const region = regionMeshes[hitIdx]?.data;
+  if (!region) return;
+  showRegionPopup(region, event);
+}
+
 renderer.domElement.addEventListener('mousemove', onMouseMove);
+renderer.domElement.addEventListener('click', onCanvasClick);
+
+if (popupCloseBtn) {
+  popupCloseBtn.addEventListener('click', hideRegionPopup);
+}
+
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') hideRegionPopup();
+});
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Cross-Section Controls
@@ -752,8 +904,8 @@ if (sidebarClose && sidebar && sidebarOpen) {
 }
 
 presetButtons.forEach((button) => {
-  button.addEventListener('click', () => {
-    triggerPresetAction(button.textContent || '');
+  button.addEventListener('click', (event) => {
+    triggerPresetAction(button.textContent || '', event);
   });
 });
 
@@ -761,7 +913,7 @@ if (presetList) {
   presetList.addEventListener('click', (event) => {
     const targetButton = event.target.closest('.option-btn');
     if (!targetButton) return;
-    triggerPresetAction(targetButton.textContent || '');
+    triggerPresetAction(targetButton.textContent || '', event);
   });
 }
 

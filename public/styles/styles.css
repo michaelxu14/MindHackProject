@@ -464,18 +464,18 @@ body.home-page main {
     position: fixed;
     z-index: 150;
     pointer-events: none;
-    background: rgba(15, 15, 25, 0.92);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(129, 140, 248, 0.25);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 10px;
     padding: 10px 16px;
     font-size: 13px;
     font-weight: 500;
-    color: #e0e0f0;
+    color: var(--text);
     white-space: nowrap;
     display: none;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.12);
     transition: opacity 0.15s ease;
 }
 
@@ -485,6 +485,106 @@ body.home-page main {
     border-radius: 50%;
     margin-right: 8px;
     vertical-align: middle;
+}
+
+/* ─── Region Click Popup ─── */
+#region-popup {
+    position: fixed;
+    z-index: 170;
+    width: min(320px, calc(100vw - 24px));
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 12px 14px 12px 12px;
+    color: var(--text);
+    display: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14);
+}
+
+#region-popup .popup-close {
+    position: absolute;
+    top: 8px;
+    right: 9px;
+    width: 24px;
+    height: 24px;
+    border: 1px solid rgba(0, 0, 0, 0.14);
+    border-radius: 999px;
+    background: #f5f3ff;
+    color: #4f46b5;
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 1;
+}
+
+#region-popup .popup-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    padding-right: 30px;
+}
+
+#region-popup .color-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+#region-popup .popup-title {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+#region-popup .popup-description {
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--muted);
+}
+
+#region-popup.preset-popup {
+    width: min(720px, calc(100vw - 48px));
+    min-height: 260px;
+    max-height: min(78vh, 640px);
+    padding: 24px 26px 22px 24px;
+    border-radius: 16px;
+    border-color: rgba(0, 0, 0, 0.12);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.18);
+    transform: translate(-50%, -50%);
+    overflow: auto;
+}
+
+#region-popup.preset-popup .popup-close {
+    top: 14px;
+    right: 14px;
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+}
+
+#region-popup.preset-popup .popup-header {
+    gap: 12px;
+    margin-bottom: 14px;
+    padding-right: 42px;
+}
+
+#region-popup.preset-popup .color-dot {
+    width: 14px;
+    height: 14px;
+}
+
+#region-popup.preset-popup .popup-title {
+    font-size: clamp(21px, 2.6vw, 30px);
+    line-height: 1.2;
+}
+
+#region-popup.preset-popup .popup-description {
+    font-size: clamp(15px, 1.4vw, 18px);
+    line-height: 1.68;
 }
 
 /* ─── Bottom controls ─── */
