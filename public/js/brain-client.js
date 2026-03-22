@@ -250,6 +250,8 @@ const EXERCISE_AFFECTED_REGIONS = [
   'Cerebellum',
 ];
 const READING_AFFECTED_REGIONS = [
+  'Right frontal lobe',
+  'Left frontal lobe',
   'Right temporal lobe',
   'Left temporal lobe',
   'Right parietal lobe',
